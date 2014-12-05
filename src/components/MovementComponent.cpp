@@ -1,4 +1,4 @@
-#include "MovementComponent.h"
+#include "components/MovementComponent.h"
 
 MovementComponent::MovementComponent(float velocityX, float velocityY)
 {

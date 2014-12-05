@@ -1,5 +1,8 @@
-#include "MovementComponent.h"
-#include "PositionComponent.h"
+#ifndef MOVEMENT_SYSTEM_H
+#define MOVEMENT_SYSTEM_H
+
+#include "components/MovementComponent.h"
+#include "components/PositionComponent.h"
 
 #include "artemiscpp/ComponentMapper.h"
 #include "artemiscpp/EntityProcessingSystem.h"
@@ -20,6 +23,8 @@ public:
 
     virtual void initialize();
 
-    virtual void processEntity(artemis::Entity &e);
+    virtual void processEntity(artemis::Entity& e);
 
 };
+
+#endif  // MOVEMENT_SYSTEM_H
