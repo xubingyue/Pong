@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
@@ -25,7 +27,15 @@ int main()
 
     PositionComponent* comp = (PositionComponent*)player.getComponent<PositionComponent>();
 
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    // Create window
+    const std::vector<sf::VideoMode>& availableVideoModes = sf::VideoMode::getFullscreenModes();
+    if (availableVideoModes.empty()) {
+        return EXIT_FAILURE;
+    }
+    std::cout << "Using VideoMode = " << availableVideoModes[0].width << "x" << availableVideoModes[0].height << std::endl;
+    sf::RenderWindow window(availableVideoModes[0], "SFML works!", sf::Style::Fullscreen);
+    window.setVerticalSyncEnabled(true);
+
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
 
@@ -36,6 +46,9 @@ int main()
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
+            if (event.key.code == sf::Keyboard::Escape) {
+                window.close();
+            }
         }
 
         world.loopStart();
@@ -44,6 +57,7 @@ int main()
 
         std::cout << "X:"<< comp->posX << std::endl;
         std::cout << "Y:"<< comp->posY << std::endl;
+
         sf::sleep(sf::seconds(0.016f));
 
         window.clear();
@@ -51,5 +65,5 @@ int main()
         window.display();
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
