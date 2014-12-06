@@ -15,8 +15,8 @@ namespace artemis
 class MovementSystem : public artemis::EntityProcessingSystem
 {
 private:
-    artemis::ComponentMapper<MovementComponent> velocityMapper;
-    artemis::ComponentMapper<PositionComponent> positionMapper;
+    artemis::ComponentMapper<MovementComponent> mVelocityMapper;
+    artemis::ComponentMapper<PositionComponent> mPositionMapper;
 
 public:
     MovementSystem();

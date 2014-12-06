@@ -7,12 +7,12 @@ MovementSystem::MovementSystem()
 
 void MovementSystem::initialize()
 {
-    velocityMapper.init(*world);
-    positionMapper.init(*world);
+    mVelocityMapper.init(*world);
+    mPositionMapper.init(*world);
 };
 
 void MovementSystem::processEntity(artemis::Entity& e)
 {
-    positionMapper.get(e)->posX += velocityMapper.get(e)->velocityX * world->getDelta();
-    positionMapper.get(e)->posY += velocityMapper.get(e)->velocityY * world->getDelta();
+    mPositionMapper.get(e)->posX += mVelocityMapper.get(e)->velocityX * world->getDelta();
+    mPositionMapper.get(e)->posY += mVelocityMapper.get(e)->velocityY * world->getDelta();
 };

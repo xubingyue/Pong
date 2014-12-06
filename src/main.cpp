@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include "systems/CollisionSystem.h"
 #include "systems/MovementSystem.h"
 
 #include "artemiscpp/World.h"
@@ -13,33 +14,39 @@
 int main()
 {
     artemis::World world;
-    artemis::SystemManager* sm = world.getSystemManager();
-    MovementSystem& movementsys = (MovementSystem&)sm->setSystem(new MovementSystem());
-    artemis::EntityManager* em = world.getEntityManager();
 
-    sm->initializeAll();
-
-    artemis::Entity& player = em->create();
-
-    player.addComponent(new MovementComponent(2,4));
-    player.addComponent(new PositionComponent(0,0));
-    player.refresh();
-
-    PositionComponent* comp = (PositionComponent*)player.getComponent<PositionComponent>();
-
-    // Create window
+    // Get video mode
     const std::vector<sf::VideoMode>& availableVideoModes = sf::VideoMode::getFullscreenModes();
     if (availableVideoModes.empty()) {
         return EXIT_FAILURE;
     }
-    std::cout << "Using VideoMode = " << availableVideoModes[0].width << "x" << availableVideoModes[0].height << std::endl;
-    sf::RenderWindow window(availableVideoModes[0], "SFML works!", sf::Style::Fullscreen);
+    sf::VideoMode videoMode = availableVideoModes[0];
+    std::cout << "Using VideoMode = " << videoMode.width << "x" << videoMode.height << std::endl;
+
+    // Initialize systems
+    artemis::SystemManager* systemManager = world.getSystemManager();
+    MovementSystem& movementSystem = (MovementSystem&)systemManager->setSystem(new MovementSystem());
+    CollisionSystem& collisionSystem = (CollisionSystem&)systemManager->setSystem(new CollisionSystem(videoMode));
+    systemManager->initializeAll();
+    std::cout << "Systems initialized" << std::endl;
+
+    // Create ball
+    artemis::EntityManager* entityManager = world.getEntityManager();
+    artemis::Entity& ball = entityManager->create();
+    ball.addComponent(new MovementComponent(400, 300));
+    ball.addComponent(new PositionComponent(videoMode.width / 2, videoMode.height / 2));
+    ball.refresh();
+
+    // Create a shape for the ball
+    sf::CircleShape ballShape(100.0f);
+    ballShape.setFillColor(sf::Color::White);
+
+    // Create window
+    sf::RenderWindow window(videoMode, "SFML works!", sf::Style::Fullscreen);
     window.setVerticalSyncEnabled(true);
 
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
     while (window.isOpen()) {
+        // Process input
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -52,17 +59,28 @@ int main()
         }
 
         world.loopStart();
+        // TODO: Need to obtain actual time delta
         world.setDelta(0.016f);
-        movementsys.process();
 
-        std::cout << "X:"<< comp->posX << std::endl;
-        std::cout << "Y:"<< comp->posY << std::endl;
+        // Process game logic
+//        std::cout << "About to process game logic" << std::endl;
+        collisionSystem.process();
+//        std::cout << "CollisionSystem processed" << std::endl;
+        movementSystem.process();
+//        std::cout << "Systems processed" << std::endl;
 
+        PositionComponent* ballPosition = (PositionComponent*)ball.getComponent<PositionComponent>();
+        ballShape.setPosition(ballPosition->posX - 50, ballPosition->posY - 50);
+
+        // TODO: Need to properly fix timestep
         sf::sleep(sf::seconds(0.016f));
 
+        // Render
+        // TODO: Make a RenderSystem
         window.clear();
-        window.draw(shape);
+        window.draw(ballShape);
         window.display();
+//        std::cout << "Rendering complete" << std::endl;
     }
 
     return EXIT_SUCCESS;
